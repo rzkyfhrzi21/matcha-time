@@ -1,0 +1,13 @@
+Cpanel Username: b7_40892047
+Cpanel Password: matchatime787898
+Your URL: http://matchatime.byethost7.com or http://www.matchatime.byethost7.com
+FTP Server : ftpupload.net
+FTP Login : b7_40892047
+FTP Password : matchatime787898
+MySQL Database Name: b7_40892047_matchatime
+MySQL Username : b7_40892047
+MySQL Password : matchatime787898
+MySQL Server: sql101.byethost7.com
+
+
+Cpanel URL: http://cpanel.byethost7.com/

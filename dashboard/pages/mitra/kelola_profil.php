@@ -1,0 +1,263 @@
+<?php
+$id_profil = $_SESSION['sesi_id'] ?? null;
+
+// Ambil id target (admin bisa lihat user lain lewat ?id= )
+$id_user = !empty($_GET['id']) ? $_GET['id'] : $id_profil;
+if (empty($id_user)) return;
+
+// Ambil data user berdasarkan id
+$query = "SELECT * FROM users WHERE id_user = '$id_user'";
+
+$sql = mysqli_query($koneksi, $query);
+if (!$sql) return;
+
+$users = mysqli_fetch_assoc($sql);
+if (!$users) return;
+
+// Mapping sesuai rancangan tabel users final
+$id_user        = $users['id_user'] ?? '';
+$nama           = $users['nama'] ?? '';
+$username       = $users['username'] ?? '';
+
+// =======================
+// DATA USAHA MITRA
+// =======================
+$mitra = mysqli_fetch_assoc(mysqli_query($koneksi, "
+    SELECT * FROM mitra WHERE id_user = '$id_user'
+"));
+
+$id_mitra         = $mitra['id_mitra'] ?? '';
+$alamat_tinggal   = $mitra['alamat_tinggal'] ?? '';
+$lokasi_stand     = $mitra['lokasi_stand'] ?? '';
+$link_gmaps_stand = $mitra['link_gmaps_stand'] ?? '';
+?>
+
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Profil</h3>
+                <p class="text-subtitle text-muted">
+                    Hi, Perbarui data anda dengan hati-hati.
+                </p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index">Dashboard</a></li>
+                        <li class="breadcrumb-item active text-capitalize" aria-current="page">
+                            <?= $page; ?>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- KIRI: PROFIL + FOTO -->
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-center align-items-center flex-column">
+                        <div class="avatar avatar-xl">
+                            <img src="../assets/<?= empty($foto_profil) ? 'static/images/faces/1.jpg' : 'img/foto_profil/' . htmlspecialchars($foto_profil) ?>"
+                                alt="Foto Profil"
+                                onerror="this.src='../assets/static/images/faces/1.jpg'">
+                        </div>
+                        <h3 class="mt-3"><?= htmlspecialchars($nama); ?></h3>
+                        <p class="text-small text-capitalize text-bold">Mitra <?= NAMA_WEB ?></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hapus Akun -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Hapus Akun</h5>
+                </div>
+                <div class="card-body">
+                    <form action="../functions/function_user.php" method="post">
+                        <p>Akun akan dihapus permanen, centang "Proses" untuk melanjutkan.</p>
+                        <div class="form-check">
+                            <div class="checkbox">
+                                <input type="checkbox" id="iaggree" class="form-check-input">
+                                <label for="iaggree">Proses! Saya setuju hapus permanen</label>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user); ?>">
+
+                        <div class="form-group my-2 d-flex justify-content-end">
+                            <button type="submit" name="btn_deleteakun" class="btn btn-danger" id="btn-delete-account" disabled>Hapus Akun</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- KANAN: DATA PRIBADI (versi ringkas sesuai tabel users) -->
+        <div class="col-12 col-lg-8">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Informasi Pribadi</h5>
+                </div>
+                <div class="card-body">
+                    <form action="../functions/function_user.php" method="post" data-parsley-validate>
+
+                        <div class="row form-group mandatory has-icon-left">
+                            <div class="col-md-6 col-12">
+                                <label for="nama" class="form-label">Nama</label>
+                                <div class="position-relative">
+                                    <input type="text" id="nama" class="form-control"
+                                        name="nama" placeholder="Nama Lengkap"
+                                        minlength="3" value="<?= htmlspecialchars($nama); ?>"
+                                        data-parsley-required="true" />
+                                    <div class="form-control-icon"><i class="bi bi-person"></i></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-12 mt-2">
+                                <label class="form-label">ID User</label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" disabled
+                                        value="<?= htmlspecialchars($id_user); ?>" />
+                                    <div class="form-control-icon"><i class="bi bi-person-badge"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row form-group mandatory has-icon-left">
+                            <div class="col-md-6 col-12">
+                                <label for="username" class="form-label">Username</label>
+                                <div class="position-relative">
+                                    <input type="text" id="username" class="form-control"
+                                        name="username" placeholder="Username"
+                                        value="<?= htmlspecialchars($username); ?>"
+                                        data-parsley-required="true" />
+                                    <div class="form-control-icon"><i class="bi bi-envelope"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user); ?>">
+                        <div class="form-group">
+                            <button type="submit" name="btn_editdatapribadi" class="btn btn-primary">Simpan Data Pribadi</button>
+                            <a href="?page=dashboard" class="btn btn-secondary">Kembali</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- INFORMASI AKUN -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Lupa Password</h5>
+                </div>
+                <div class="card-body">
+                    <form action="../functions/function_user.php" method="post" data-parsley-validate>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password Baru</label>
+                            <p><small class="text-bold"><code>*Abaikan jika tidak ingin mengganti password</code></small></p>
+                            <input type="password" id="password" class="form-control" name="password" minlength="5" placeholder="Password Baru" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="konfirmasi_password" class="form-label">Konfirmasi Password</label>
+                            <input type="password" id="konfirmasi_password" class="form-control" name="konfirmasi_password" minlength="5" placeholder="Konfirmasi Password" />
+                        </div>
+
+                        <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user); ?>">
+
+                        <div class="form-group">
+                            <button type="submit" name="btn_editdataakun" class="btn btn-primary">Simpan Data Akun</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <!-- ================= DATA USAHA ================= -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Data Usaha</h5>
+                <p class="text-muted mb-0">Lengkapi data usaha sebelum melakukan pesanan</p>
+            </div>
+
+            <div class="card-body">
+                <form action="../functions/function_user.php" method="post">
+
+                    <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user); ?>">
+                    <?php if (!empty($id_mitra)): ?>
+                        <input type="hidden" name="id_mitra" value="<?= htmlspecialchars($id_mitra); ?>">
+                    <?php endif; ?>
+
+                    <div class="row form-group mandatory has-icon-left">
+                        <div class="col-md-6 col-12">
+                            <label class="form-label">Alamat Tinggal</label>
+                            <div class="position-relative">
+                                <input type="text"
+                                    class="form-control"
+                                    name="alamat_tinggal"
+                                    placeholder="Alamat tempat tinggal mitra"
+                                    value="<?= htmlspecialchars($alamat_tinggal); ?>"
+                                    required>
+                                <div class="form-control-icon">
+                                    <i class="bi bi-house"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-12">
+                            <label class="form-label">Lokasi Stand</label>
+                            <div class="position-relative">
+                                <input type="text"
+                                    class="form-control"
+                                    name="lokasi_stand"
+                                    placeholder="Lokasi / nama stand"
+                                    value="<?= htmlspecialchars($lokasi_stand); ?>"
+                                    required>
+                                <div class="form-control-icon">
+                                    <i class="bi bi-shop"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-group mandatory has-icon-left mt-2">
+                        <div class="col-md-12">
+                            <label class="form-label">Link Google Maps Stand</label>
+                            <div class="position-relative">
+                                <input type="url"
+                                    class="form-control"
+                                    name="link_gmaps_stand"
+                                    placeholder="https://maps.google.com/..."
+                                    value="<?= htmlspecialchars($link_gmaps_stand); ?>"
+                                    required>
+                                <div class="form-control-icon">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3 d-flex justify-content-end">
+                        <?php if (empty($id_mitra)): ?>
+                            <button type="submit" name="btn_add_mitra" class="btn btn-primary">
+                                Simpan Data Usaha
+                            </button>
+                        <?php else: ?>
+                            <button type="submit" name="btn_edit_mitra" class="btn btn-success">
+                                Perbarui Data Usaha
+                            </button>
+                        <?php endif; ?>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

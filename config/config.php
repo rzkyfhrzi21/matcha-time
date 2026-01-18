@@ -10,17 +10,17 @@ date_default_timezone_set('Asia/Jakarta');
 $pukul = date('H:i A');
 
 // Deteksi server
-$host = $_SERVER['HTTP_HOST'];
+$host = $_SERVER['SERVER_NAME'];
 if ($host === 'localhost' || strpos($host, '127.0.0.1') !== false) {
     $server     = 'localhost';
     $username   = 'root';
     $password   = '';
     $database   = 'matcha-time';
 } else {
-    $server     = 'sql101.byethost7.com';
-    $username   = 'b7_40892047';
-    $password   = 'matchatime787898';
-    $database   = 'b7_40892047_matchatime';
+    $server     = '';
+    $username   = '';
+    $password   = '';
+    $database   = '';
 }
 
 $koneksi = mysqli_connect($server, $username, $password, $database);

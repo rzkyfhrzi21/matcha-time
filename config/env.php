@@ -1,6 +1,6 @@
 <?php
 define("NAMA_WEB", "Matcha Time");
-define("NAMA_LENGKAP", "Kelompok Matcha");
+define("NAMA_LENGKAP", "Rizky Fahrezi, Bagas Wibisono & Ahmad Safrudin Kurniawan");
 // define("IG", "");
 // define("EMAIL", "");
 // define("NO_WA", "085162642703");
